@@ -1,4 +1,3 @@
-"""InterfaceConversacional (Streamlit) — Alternativa A da especificação da interface."""
 import json
 import logging
 import os
@@ -28,13 +27,10 @@ AVISO_IA = "As respostas são geradas por IA e podem conter erros. Confira a fon
 PORTAL = "https://dados.es.gov.br/organization/sesp"
 ANOS_MAPA = [2023, 2024, 2025]
 ALTURA_MAPA = 520
-# Roda do mouse/pinça dão zoom; só os botões de zoom e de reenquadrar ficam visíveis.
 CONFIG_MAPA = {"scrollZoom": True, "displayModeBar": True, "displaylogo": False,
                "modeBarButtons": [["zoomInGeo", "zoomOutGeo", "resetGeo"]]}
 
-# Visual da interface (layout, vidro, botões do mapa).
 ARQUIVO_CSS = config.RAIZ / "styles.css"
-# Logo feito no Claude Design ("Logo Alerta Capixaba"), exportado em PNG transparente.
 LOGO = config.RAIZ / "static" / "logo-alerta-capixaba.png"
 
 
@@ -72,10 +68,7 @@ def dados_mapa() -> tuple[dict[str, IndicadorMapa], dict, dict]:
     return carregar_mapa(config.ARQUIVO_REGISTRY), malha, malha_bairros
 
 
-# ---- Estado da conversa ---------------------------------------------------
-
 def perguntar(texto: str) -> None:
-    """Agenda uma pergunta vinda de um botão (cartão, sugestão ou nova tentativa)."""
     st.session_state.pendente = texto
 
 
@@ -89,13 +82,12 @@ def ao_escolher(chave: str) -> None:
 
 
 def preencher_chat(texto: str) -> None:
-    """Coloca a pergunta no campo do chat, sem enviar."""
     st.session_state.entrada = texto
 
 
 def ver_bairros(codigo: str, nome: str) -> None:
     st.session_state.mapa_municipio = (codigo, nome)
-    st.session_state.pop("mapa", None)          # limpa o clique no município
+    st.session_state.pop("mapa", None)
 
 
 def voltar_ao_estado() -> None:
@@ -108,8 +100,6 @@ def ao_avaliar(chave: str, pergunta: str, resposta: str) -> None:
     if valor is not None:
         avaliacoes.registrar(config.ARQUIVO_AVALIACOES, pergunta, resposta, util=valor == 1)
 
-
-# ---- Componentes ----------------------------------------------------------
 
 def barra_lateral(orquestrador: Orquestrador, carregado_em: datetime) -> None:
     with st.sidebar:
@@ -171,7 +161,6 @@ def como_entendi(r: Resposta) -> None:
 
 
 def grafico(df: pd.DataFrame, rotulo: str) -> alt.Chart:
-    """Barras horizontais estáticas (sem zoom), da maior para a menor."""
     return alt.Chart(df).mark_bar(color=config.COR_PRIMARIA, cornerRadiusEnd=3).encode(
         x=alt.X("Ocorrências:Q", title="Ocorrências", axis=alt.Axis(format="d")),
         y=alt.Y(f"{rotulo}:N", sort="-x", title=None, axis=alt.Axis(labelLimit=220)),
@@ -237,10 +226,7 @@ def responder(orquestrador: Orquestrador, pergunta: str) -> Resposta:
     return orquestrador.responder(pergunta)
 
 
-# ---- Mapa -----------------------------------------------------------------
-
 def numero(valor: float, casas: int = 1) -> str:
-    """Formato brasileiro: 1.234,5."""
     return f"{valor:,.{casas}f}".replace(",", "_").replace(".", ",").replace("_", ".")
 
 
@@ -250,7 +236,6 @@ def rotulo_indicador(ind: IndicadorMapa) -> str:
 
 def figura_mapa(malha: dict, idkey: str, ids: pd.Series, classes, cores: list[str],
                 nomes: pd.Series, valores: pd.Series, unidade: str, revisao: str) -> go.Figure:
-    """Contornos (municípios ou bairros) sem mapa de fundo, coloridos pela classe do valor."""
     k = len(cores)
     degraus = [[pos, c] for i, c in enumerate(cores) for pos in (i / k, (i + 1) / k)]
     fig = go.Figure(go.Choropleth(
@@ -262,7 +247,6 @@ def figura_mapa(malha: dict, idkey: str, ids: pd.Series, classes, cores: list[st
         unselected=dict(marker=dict(opacity=0.45)),
     ))
     fig.update_geos(fitbounds="locations", projection_type="mercator", visible=False, bgcolor="rgba(0,0,0,0)")
-    # uirevision mantém o zoom e o arraste do usuário entre as reexecuções; muda ao trocar de recorte.
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), height=ALTURA_MAPA, dragmode="pan", uirevision=revisao,
                       paper_bgcolor="rgba(0,0,0,0)")
     return fig
@@ -319,7 +303,6 @@ def painel_bairro(ind: IndicadorMapa, nome: str, municipio: str, anos: pd.DataFr
 
 
 def selecionado(evento, ids: pd.Series) -> str | None:
-    """Código da feição clicada no mapa, ou None."""
     pontos = evento.selection.points
     if not pontos:
         return None
@@ -393,8 +376,6 @@ def mapa(con) -> None:
         mapa_estado(con, ind, ano, malha, com_bairros)
 
 
-# ---- Página ---------------------------------------------------------------
-
 st.set_page_config(page_title="Alerta Capixaba", page_icon=":material/shield:", layout="wide",
                    initial_sidebar_state="auto")
 st.markdown(f"<style>{ARQUIVO_CSS.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
@@ -404,8 +385,6 @@ st.session_state.setdefault("limite", LimiteSessao(config.MAX_PERGUNTAS_POR_MINU
 orquestrador, carregado_em = carregar()
 barra_lateral(orquestrador, carregado_em)
 
-# Logo no topo quando a barra lateral está recolhida; o CSS o esconde quando ela abre,
-# porque aí o logo aparece dentro dela.
 with st.container(key="logo-topo"):
     st.image(str(LOGO), width=120)
 
@@ -413,7 +392,6 @@ with st.container(key="painel"):
     coluna_chat, coluna_mapa = st.columns(2, gap="large")
 
 with coluna_mapa:
-    # Cada execução usa o próprio cursor: a conexão DuckDB é compartilhada entre as sessões.
     mapa(orquestrador.con.cursor())
 
 with coluna_chat.container(key="coluna-chat"):

@@ -1,8 +1,3 @@
-"""ETL: lê os CSV da SESP, projeta no esquema canônico e grava em Parquet.
-
-Regras aplicadas aqui: RN02 (deduplicação), RN03 (faixa horária) e
-RN05 (normalização de bairro e município).
-"""
 import logging
 import re
 import shutil
@@ -22,19 +17,16 @@ CAMPOS_CANONICOS = [
     "modelo", "idade", "sexo", "cor_raca",
 ]
 
-# Valores que significam "sem informação" nos campos de perfil.
 AUSENTES = {"", "S/I", "INDETERMINADA", "INDETERMINADO", "NÃO INFORMADO", "PREJUDICADO"}
 
 
 def normalizar_texto(serie: pd.Series) -> pd.Series:
-    """Maiúsculas, sem espaços extras e sem prefixos como '1 - ' (RN05)."""
     s = serie.astype("string").str.upper().str.strip()
     s = s.str.replace(r"\s+", " ", regex=True)
     return s.str.replace(r"^\d+\s*-\s*", "", regex=True)
 
 
 def faixa_horaria(hora: str | None) -> str:
-    """Deriva o período do dia a partir de 'HH:MM[:SS]' (RN03, Tabela 6)."""
     if not isinstance(hora, str) or not re.match(r"^\d{1,2}:\d{2}", hora.strip()):
         return "indeterminada"
     h = int(hora.strip().split(":")[0])
@@ -65,17 +57,10 @@ def transformar(bruto: pd.DataFrame, conjunto: ConjuntoDados) -> pd.DataFrame:
         df[campo] = df[campo].where(~df[campo].isin(AUSENTES))
     df["idade"] = pd.to_numeric(df["idade"], errors="coerce").astype("Int64")
 
-    # Cada linha é um objeto ou uma vítima; linhas idênticas são duplicatas.
-    # A contagem por ocorrência distinta (RN02) é feita na consulta.
     return df.drop_duplicates().reset_index(drop=True)
 
 
 def obter_csvs(conjuntos: dict[str, ConjuntoDados], dir_cache: Path, dir_reserva: Path, validade_s: float) -> None:
-    """Baixa os CSV do portal da SESP para dir_cache (AD01).
-
-    Um arquivo baixado há menos de validade_s é reaproveitado. Se o download falhar,
-    fica a cópia anterior do cache ou, na falta dela, a cópia local de dir_reserva.
-    """
     dir_cache.mkdir(parents=True, exist_ok=True)
     for conjunto in conjuntos.values():
         destino = dir_cache / conjunto.arquivo
@@ -96,7 +81,6 @@ def obter_csvs(conjuntos: dict[str, ConjuntoDados], dir_cache: Path, dir_reserva
 
 
 def preparar_base(conjuntos: dict[str, ConjuntoDados], dir_csv: Path, dir_base: Path) -> dict[str, Path]:
-    """Gera um Parquet por conjunto e devolve {id: caminho}; conjuntos sem CSV ficam de fora."""
     dir_base.mkdir(parents=True, exist_ok=True)
     gerados = {}
     for conjunto in conjuntos.values():
@@ -112,10 +96,7 @@ def preparar_base(conjuntos: dict[str, ConjuntoDados], dir_csv: Path, dir_base: 
     return gerados
 
 
-# ---- Mapa: população dos municípios --------------------------------------
-
 def preparar_populacao(arquivo_populacao: Path, dir_base: Path) -> dict[str, Path]:
-    """Grava a população do Censo 2022 (codigo_ibge, municipio, populacao) para o DuckDB."""
     dir_base.mkdir(parents=True, exist_ok=True)
     destino = dir_base / "populacao.parquet"
     pd.read_csv(arquivo_populacao, dtype={"codigo_ibge": str}).to_parquet(destino, index=False)

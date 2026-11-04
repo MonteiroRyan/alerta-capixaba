@@ -1,4 +1,3 @@
-"""RoteadorConsulta: escolhe o conjunto e valida o recorte pedido (RN01)."""
 from dados.registry import ConjuntoDados
 from dados.repositorio import chave
 from dominio.modelos import Intencao
@@ -7,10 +6,6 @@ ESTADO = {"ES", "ESPIRITO SANTO", "ESTADO DO ESPIRITO SANTO"}
 
 
 class RecorteInvalido(Exception):
-    """O pedido não pode ser atendido; a mensagem orienta o cidadão (UC06).
-
-    motivo: "tipo", "perfil", "municipio", "bairro" ou "ano" — usado para sugerir saídas.
-    """
 
     def __init__(self, mensagem: str, motivo: str):
         super().__init__(mensagem)
@@ -19,7 +14,6 @@ class RecorteInvalido(Exception):
 
 def rotear(intencao: Intencao, conjuntos: dict[str, ConjuntoDados],
            locais: dict[str, dict]) -> tuple[ConjuntoDados, Intencao]:
-    """Devolve o conjunto e a intenção com município/bairro na grafia da base."""
     conjunto = conjuntos.get(intencao.tipo_crime or "")
     if conjunto is None:
         raise RecorteInvalido("Sobre qual tipo de crime é a sua pergunta?", "tipo")
@@ -32,7 +26,6 @@ def rotear(intencao: Intencao, conjuntos: dict[str, ConjuntoDados],
         )
 
     ajustes = {}
-    # "ES" ou "Espírito Santo" no lugar do município significa o estado todo.
     if intencao.municipio and chave(intencao.municipio) in ESTADO:
         intencao = intencao.model_copy(update={"municipio": None})
     for campo in ("municipio", "bairro"):

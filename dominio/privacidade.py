@@ -1,4 +1,3 @@
-"""GuardaPrivacidade: suprime grupos com menos de k registros (AD05)."""
 from dataclasses import replace
 
 from dominio.modelos import ResultadoConsulta

@@ -1,26 +1,14 @@
-"""Gera dados/ibge/malha-bairros-es-cd2022.geojson a partir da malha de bairros do IBGE.
-
-Fonte: IBGE, Censo 2022, malha de bairros (GeoPackage do ES):
-https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_de_setores_censitarios__divisoes_intramunicipais/censo_2022/bairros/gpkg/UF/ES/ES_bairros_CD2022.gpkg
-
-Só 17 municípios do ES têm bairros oficiais nessa malha. O GeoPackage é um SQLite; a
-geometria é lida aqui sem bibliotecas de geoprocessamento e simplificada (~10 m) para o
-arquivo ficar leve no navegador.
-
-Uso: python dados/ibge/gerar_malha_bairros.py caminho/ES_bairros_CD2022.gpkg
-"""
 import json
 import sqlite3
 import struct
 import sys
 from pathlib import Path
 
-TOLERANCIA = 0.0001   # graus (~10 m)
+TOLERANCIA = 0.0001
 DESTINO = Path(__file__).with_name("malha-bairros-es-cd2022.geojson")
 
 
 def ler_wkb(dados: bytes, pos: int = 0):
-    """Lê Polygon (3) ou MultiPolygon (6) em WKB; devolve (lista de polígonos, nova posição)."""
     ordem = "<" if dados[pos] == 1 else ">"
     tipo = struct.unpack_from(ordem + "I", dados, pos + 1)[0] % 1000
     pos += 5
@@ -47,14 +35,12 @@ def ler_wkb(dados: bytes, pos: int = 0):
 
 
 def geometria_gpkg(blob: bytes) -> list:
-    """Remove o cabeçalho GeoPackage (GP + versão + flags + srs + envelope) e lê o WKB."""
     flags = blob[3]
     envelope = {0: 0, 1: 32, 2: 48, 3: 48, 4: 64}[(flags >> 1) & 0b111]
     return ler_wkb(blob, 8 + envelope)[0]
 
 
 def simplificar(anel: list, tol: float) -> list:
-    """Douglas-Peucker iterativo, mantendo o anel fechado e com pelo menos 4 pontos."""
     if len(anel) < 5:
         return anel
     manter = [False] * len(anel)

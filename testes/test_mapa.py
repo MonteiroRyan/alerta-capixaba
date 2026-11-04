@@ -16,7 +16,6 @@ def con_mapa(tmp_path):
     populacao = tmp_path / "pop.csv"
     populacao.write_text("codigo_ibge,municipio,populacao\n3205309,Vitória,200000\n3204559,Santa Maria de Jetibá,50000\n",
                          encoding="utf-8")
-    # Violência doméstica tem uma linha por envolvido: a ocorrência 1 aparece duas vezes.
     vd = pd.DataFrame({
         "ocorrencia": ["1", "1", "2", "3", "4"],
         "data_fato": pd.to_datetime(["2024-02-01", "2024-02-01", "2024-03-05", "2025-10-10", "2025-10-10"]).date,
@@ -66,12 +65,11 @@ def test_registry_do_mapa_tem_os_16_indicadores():
     indicadores = carregar_mapa(config.ARQUIVO_REGISTRY)
     assert len(indicadores) == 16
     assert {i.grupo for i in indicadores.values()} == {"Crimes contra a vida", "Violência doméstica", "Roubos", "Furtos"}
-    # Cada indicador do mapa é calculado a partir da tabela do conjunto de mesmo id.
     assert set(indicadores) <= set(carregar_registry(config.ARQUIVO_REGISTRY))
 
 
 def test_orienta_contorno_no_sentido_horario():
-    quadrado = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]  # anti-horário (RFC 7946)
+    quadrado = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
     malha = {"features": [{"geometry": {"type": "Polygon", "coordinates": [list(quadrado)]}}]}
     anel = orientar(malha)["features"][0]["geometry"]["coordinates"][0]
     assert anel == quadrado[::-1]

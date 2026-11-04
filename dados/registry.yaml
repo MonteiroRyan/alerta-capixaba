@@ -1,6 +1,3 @@
-# Catálogo dos conjuntos de dados (Tabela 7 do Projeto da Arquitetura).
-# "campos" mapeia o campo canônico para o nome da coluna no CSV da SESP.
-# Incluir um novo conjunto = acrescentar uma entrada aqui (RNF06).
 conjuntos:
   roubo-celular:
     nome: Roubo de celular
@@ -8,7 +5,7 @@ conjuntos:
     dataset_id: 356fa62d-7aa9-49a4-bc3c-62d46f078f92
     resource_id: 1625ba2d-8020-4d65-b982-a28c65806e18
     arquivo: roubo-celular.csv
-    campos: &campos_objeto       # conjuntos por objeto (celular, bicicleta, veículo)
+    campos: &campos_objeto
       ocorrencia: "Nº OCORRÊNCIA"
       data_fato: "DATA DO FATO"
       hora_fato: "HORA DO FATO"
@@ -75,7 +72,7 @@ conjuntos:
     dataset_id: 9815cc60-37c1-49c7-8be0-d72f54a456e6
     resource_id: c16c37b7-6b3e-4bd0-8462-eb39a4a0f24a
     arquivo: roubo-a-pessoa.csv
-    campos: &campos_local         # conjuntos por local (pessoa, comércio, residência, transporte)
+    campos: &campos_local
       ocorrencia: "Nº OCORRÊNCIA"
       data_fato: "DATA DO FATO"
       hora_fato: "HORA DO FATO"
@@ -163,9 +160,6 @@ conjuntos:
     arquivo: furto-em-transporte-coletivo.csv
     campos: *campos_local
 
-# Indicadores do mapa: ocorrências distintas por município e ano, em taxa por
-# 100 mil habitantes, calculadas a partir das tabelas dos conjuntos acima (mesmo id).
-# "cor" é o tom mais escuro da escala sequencial do indicador.
 mapa:
   homicidios-e-feminicidios: {nome: Homicídios e feminicídios, grupo: Crimes contra a vida, cor: "#A50F15"}
   violencia-domestica: {nome: Violência doméstica, grupo: Violência doméstica, cor: "#7A0177"}

@@ -1,4 +1,3 @@
-"""Registro das avaliações (útil / não útil) usado na avaliação do protótipo (OE5)."""
 import json
 from datetime import datetime
 from pathlib import Path

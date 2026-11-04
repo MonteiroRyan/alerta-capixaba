@@ -1,9 +1,7 @@
-"""Perguntas prontas para clicar: boas-vindas, continuação e saídas de esclarecimento."""
 from dados.registry import ConjuntoDados
 from dominio.modelos import Intencao
 from dominio.resposta import formatar_nome
 
-# Cartões da tela de boas-vindas (Quadro 3): (pergunta, tipo de consulta).
 EXEMPLOS = [
     ("Quantos roubos de celular houve em Vila Velha em 2025?", "Número em um período"),
     ("Em quais bairros de Serra houve mais casos de violência doméstica?", "Ranking"),
@@ -21,7 +19,6 @@ FAIXAS = {"madrugada": "de madrugada", "manha": "de manhã", "tarde": "à tarde"
 
 
 def descrever(nome: str, intencao: Intencao) -> str:
-    """Monta uma pergunta curta e legível a partir dos parâmetros de uma intenção."""
     texto = nome
     if intencao.bairro:
         texto += f" no bairro {formatar_nome(intencao.bairro)}"
@@ -40,7 +37,6 @@ def descrever(nome: str, intencao: Intencao) -> str:
 
 def continuacoes(conjunto: ConjuntoDados, intencao: Intencao, conjuntos: dict[str, ConjuntoDados],
                  anos: list[int]) -> list[str]:
-    """Até três perguntas relacionadas à resposta atual (Quadro 4, item 6)."""
     opcoes = []
     if conjunto.tem_perfil and not intencao.perfil:
         opcoes.append(descrever(conjunto.nome, intencao.model_copy(update={"perfil": "sexo"})))
@@ -53,7 +49,6 @@ def continuacoes(conjunto: ConjuntoDados, intencao: Intencao, conjuntos: dict[st
 
 
 def candidatos(pergunta: str, conjuntos: dict[str, ConjuntoDados]) -> list[ConjuntoDados]:
-    """Conjuntos que combinam com a palavra usada ("roubo", "assalto", "furto"); todos se nenhuma."""
     texto = pergunta.lower()
     prefixos = [p for p, palavras in (("roubo", ("roub", "assalt")), ("furto", ("furt",)))
                 if any(w in texto for w in palavras)]
@@ -63,7 +58,6 @@ def candidatos(pergunta: str, conjuntos: dict[str, ConjuntoDados]) -> list[Conju
 
 def para_recorte(motivo: str, intencao: Intencao, pergunta: str, conjuntos: dict[str, ConjuntoDados],
                  anos: list[int] | None) -> list[str]:
-    """Saídas clicáveis para um recorte que não pôde ser atendido (seção 5.3)."""
     nome = conjuntos[intencao.tipo_crime].nome if intencao.tipo_crime in conjuntos else ""
     if motivo == "tipo":
         return [descrever(c.nome, intencao) for c in candidatos(pergunta, conjuntos)]

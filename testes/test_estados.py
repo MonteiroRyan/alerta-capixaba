@@ -1,4 +1,3 @@
-"""Cada ramo do fluxo da interface (seção 4 da especificação) devolve o tipo e as saídas certas."""
 from conftest import CONJUNTOS
 from dominio.orquestrador import Orquestrador
 from test_seguranca import ClienteFalso
@@ -30,7 +29,7 @@ def test_fora_do_escopo_sugere_perguntas(con):
 def test_tipo_vago_oferece_os_conjuntos(con):
     r = responder(con, {"no_escopo": True}, "roubos em 2024")
     assert r.tipo == "esclarecimento"
-    assert r.opcoes == ["Roubo de celular no ES"]  # "roubos" filtra os conjuntos de roubo
+    assert r.opcoes == ["Roubo de celular no ES"]
 
 
 def test_perfil_indisponivel_oferece_recorte_valido(con):
@@ -46,7 +45,6 @@ def test_servico_indisponivel_vira_erro(con):
 
 
 def test_pergunta_sobre_o_es_traz_dados_e_grafico(con):
-    # Regressão: o interpretador devolvia municipio="ES" e a resposta virava "Não encontrei o município".
     r = responder(con, {"no_escopo": True, "tipo_crime": "homicidios-e-feminicidios", "municipio": "ES",
                         "ano": 2024, "perfil": "sexo"})
     assert r.tipo == "resposta"

@@ -1,4 +1,3 @@
-"""Limites de uso: por sessão (janela de 1 min) e teto global diário (AD12)."""
 import threading
 import time
 from collections import deque
@@ -22,7 +21,6 @@ class LimiteSessao:
 
 
 class TetoGlobal:
-    """Compartilhado entre sessões para proteger a cota do Gemini."""
 
     def __init__(self, maximo_por_dia: int):
         self.maximo = maximo_por_dia

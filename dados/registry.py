@@ -1,4 +1,3 @@
-"""Carrega o registry.yaml em objetos ConjuntoDados."""
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -9,20 +8,18 @@ import yaml
 class ConjuntoDados:
     id: str
     nome: str
-    familia: str            # "A" (patrimônio) ou "B" (pessoa)
+    familia: str
     resource_id: str
     arquivo: str
-    campos: dict[str, str]  # campo canônico -> coluna do CSV
+    campos: dict[str, str]
     dataset_id: str = ""
 
     @property
     def url(self) -> str:
-        """Página do recurso no portal dados.es.gov.br."""
         return f"https://dados.es.gov.br/dataset/{self.dataset_id}/resource/{self.resource_id}"
 
     @property
     def url_download(self) -> str:
-        """Download direto do CSV no portal (padrão CKAN)."""
         return f"{self.url}/download/{self.arquivo}"
 
     @property
@@ -40,8 +37,8 @@ def carregar_registry(caminho: Path) -> dict[str, ConjuntoDados]:
 class IndicadorMapa:
     id: str
     nome: str
-    grupo: str              # "Crimes contra a vida", "Roubos", ...
-    cor: str                # tom mais escuro da escala do mapa
+    grupo: str
+    cor: str
 
 
 def carregar_mapa(caminho: Path) -> dict[str, IndicadorMapa]:

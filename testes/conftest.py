@@ -6,8 +6,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from dados.registry import ConjuntoDados  # noqa: E402
-from dados.repositorio import abrir_conexao  # noqa: E402
+from dados.registry import ConjuntoDados
+from dados.repositorio import abrir_conexao
 
 CELULAR = ConjuntoDados("roubo-celular", "Roubo de celular", "A", "x", "roubo-celular.csv", {})
 HOMICIDIO = ConjuntoDados("homicidios-e-feminicidios", "Homicídios e feminicídios", "B", "y", "h.csv", {})
@@ -21,7 +21,7 @@ def linha(ocorrencia, bairro, faixa, sexo=None, idade=None, municipio="VITORIA")
 
 @pytest.fixture
 def con(tmp_path):
-    celular = [linha("1", "CENTRO", "noite"), linha("1", "CENTRO", "noite"),  # 2 objetos, 1 ocorrência
+    celular = [linha("1", "CENTRO", "noite"), linha("1", "CENTRO", "noite"),
                linha("2", "CENTRO", "manha"), linha("3", "JARDIM CAMBURI", "noite")]
     homicidio = [linha(str(i), "CENTRO", "noite", sexo="MASCULINO", idade=20) for i in range(6)]
     homicidio += [linha("9", "CENTRO", "tarde", sexo="FEMININO", idade=30)]

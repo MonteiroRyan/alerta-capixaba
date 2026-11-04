@@ -1,4 +1,3 @@
-"""GeradorResposta: redige a resposta com prompt estrito e fallback por template (AD07)."""
 import json
 import logging
 from dataclasses import replace
@@ -26,7 +25,6 @@ ROTULOS = {
 
 
 def formatar_nome(nome: str) -> str:
-    """'PRAIA DA COSTA' -> 'Praia da Costa'."""
     palavras = nome.lower().split()
     return " ".join(p if i and p in MINUSCULAS else p.capitalize() for i, p in enumerate(palavras))
 
@@ -40,7 +38,6 @@ def rotulo_grupo(agrupado_por: str, grupo: str) -> str:
 
 
 def legivel(r: ResultadoConsulta) -> ResultadoConsulta:
-    """Cópia do resultado com nomes de lugares e grupos prontos para exibição."""
     filtros = {c: formatar_nome(v) if c in ("bairro", "municipio") else v for c, v in r.filtros.items()}
     grupos = [(rotulo_grupo(r.agrupado_por, g), n) for g, n in r.grupos]
     return replace(r, filtros=filtros, grupos=grupos)

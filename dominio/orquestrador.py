@@ -1,4 +1,3 @@
-"""Orquestrador: interpretação -> roteamento -> consulta -> privacidade -> resposta."""
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -18,7 +17,6 @@ from infra import config
 
 log = logging.getLogger(__name__)
 
-# Mensagens padronizadas (Quadro 5 da especificação da interface).
 FORA_DO_ESCOPO = "Respondo só perguntas sobre estatísticas criminais publicadas pela SESP-ES. Posso mostrar, por exemplo:"
 INDISPONIVEL = ("Não foi possível consultar os dados da SESP-ES agora. "
                 "Sua pergunta foi mantida; tente de novo em alguns minutos.")
@@ -27,11 +25,11 @@ INDISPONIVEL = ("Não foi possível consultar os dados da SESP-ES agora. "
 @dataclass
 class Resposta:
     texto: str
-    tipo: str = "resposta"      # resposta | esclarecimento | fora_escopo | erro | aviso
+    tipo: str = "resposta"
     resultado: ResultadoConsulta | None = None
     intencao: Intencao | None = None
     conjunto: ConjuntoDados | None = None
-    opcoes: list[str] = field(default_factory=list)   # perguntas prontas para clicar
+    opcoes: list[str] = field(default_factory=list)
     consultado_em: datetime = field(default_factory=datetime.now)
 
 
@@ -62,7 +60,6 @@ class Orquestrador:
 
         try:
             conjunto, intencao = rotear(intencao, self.conjuntos, self.locais)
-            # Cursor próprio por pergunta: a conexão é compartilhada entre as sessões do Streamlit.
             resultado = aplicar_guarda(consultar(self.con.cursor(), conjunto, intencao), config.K_MINIMO)
             anos = self.locais[conjunto.id]["anos"]
             return Resposta(redigir(self.cliente, resultado), "resposta", resultado, intencao, conjunto,
@@ -76,7 +73,6 @@ class Orquestrador:
             return Resposta(INDISPONIVEL, "erro")
 
     def cobertura(self) -> dict:
-        """Resumo para a barra lateral: municípios cobertos e período dos dados."""
         municipios = set().union(*(set(l["municipio"].values()) for l in self.locais.values()))
         anos = sorted(set().union(*(l["anos"] for l in self.locais.values())))
         return {"municipios": len(municipios), "anos": (anos[0], anos[-1])}

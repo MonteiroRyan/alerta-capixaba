@@ -1,4 +1,3 @@
-"""ConsultaCriminal: filtra e agrega no DuckDB com SQL parametrizado."""
 import duckdb
 
 from dados.registry import ConjuntoDados
@@ -14,7 +13,6 @@ FAIXA_ETARIA = """CASE
     WHEN idade < 60 THEN '45 a 59'
     ELSE '60 ou mais' END"""
 
-# Expressões fixas; o usuário nunca escolhe texto SQL, só uma destas chaves.
 AGRUPAMENTOS = {
     "idade": FAIXA_ETARIA,
     "sexo": "sexo",
@@ -51,7 +49,6 @@ def consultar(con: duckdb.DuckDBPyConnection, conjunto: ConjuntoDados, intencao:
     ).fetchone()
 
     agrupado_por = escolher_agrupamento(intencao)
-    # Perfil conta vítimas (linhas); os demais recortes contam ocorrências (RN02).
     contagem = "COUNT(*)" if intencao.perfil else "COUNT(DISTINCT ocorrencia)"
     linhas = con.execute(
         f"SELECT COALESCE({AGRUPAMENTOS[agrupado_por]}, 'não informado') AS g, {contagem} AS n "
