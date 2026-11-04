@@ -35,17 +35,6 @@ tamanho e a frequência das perguntas.
 
 **Tecnologias:** Python 3.12, Streamlit, Google Gemini API, pandas, DuckDB e Plotly.
 
-## Rodar localmente
-
-```bash
-python -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt
-copy .streamlit\secrets.toml.example .streamlit\secrets.toml   # preencha GEMINI_API_KEY
-.venv\Scripts\python -m streamlit run app.py
-```
-
-O app abre em http://localhost:8501.
-
 ## Testes
 
 ```bash
