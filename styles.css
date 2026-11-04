@@ -1,0 +1,306 @@
+/* Alerta Capixaba: visual "liquid glass" (somente tema claro).
+   Seletores por data-testid e pelas classes .st-key-* (geradas a partir de key= no app.py),
+   conferidos no Streamlit 1.65. Nenhuma classe st-emotion-cache-* é usada. */
+
+/* ---- Tokens ----------------------------------------------------------- */
+:root {
+  --azul: #0096E1;
+  --rosa: #F09BBE;
+
+  /* vidro */
+  --glass-bg: rgba(255, 255, 255, 0.70);
+  --glass-bg-mapa: rgba(255, 255, 255, 0.75);
+  --glass-bg-sidebar: rgba(255, 255, 255, 0.80);
+  --glass-bg-sidebar-mobile: rgba(255, 255, 255, 0.85);
+  --glass-bg-solido: rgba(255, 255, 255, 0.92);   /* fallback sem backdrop-filter */
+  --glass-blur: 20px;
+  --glass-blur-sidebar: 24px;
+  --glass-saturate: 160%;
+  --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 1px 2px rgba(15, 40, 70, 0.06), 0 8px 24px rgba(15, 40, 70, 0.10);
+  --glass-shadow-hover: 0 2px 4px rgba(15, 40, 70, 0.08), 0 12px 32px rgba(15, 40, 70, 0.14);
+
+  /* texto secundário (legendas, placeholder, cinza dos cartões): o Streamlit usa 60%, que fica
+     abaixo de 4,5:1 sobre o vidro; 72% é o mínimo que passa no pior fundo (69%) com margem. */
+  --texto-secundario: rgba(27, 36, 48, 0.72);
+
+  /* superfícies quase opacas (balões, cards) */
+  --surface-solid: rgba(255, 255, 255, 0.92);
+  --surface-shadow: 0 1px 2px rgba(15, 40, 70, 0.05), 0 4px 16px rgba(15, 40, 70, 0.08);
+
+  /* formas e movimento */
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --float-margin: 16px;
+  --float-margin-mobile: 12px;
+  --transition: 200ms ease;
+}
+
+/* ---- Fundo ------------------------------------------------------------ */
+[data-testid="stApp"] {
+  background:
+    radial-gradient(circle at 15% 10%, rgba(0, 150, 225, 0.22), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(240, 155, 190, 0.25), transparent 45%),
+    linear-gradient(135deg, #F4FAFE 0%, #FDF3F8 100%);
+  background-attachment: fixed;
+}
+/* Cabeçalho sem vidro: só transparente, para o gradiente aparecer. */
+[data-testid="stHeader"],
+[data-testid="stBottom"],
+[data-testid="stBottom"] > div { background: transparent; }
+
+/* ---- Layout (já existia) ---------------------------------------------- */
+/* Desktop: mapa à esquerda e chat à direita. No celular as colunas empilham na
+   ordem do código (chat em cima, mapa embaixo), por isso a inversão só acima de 640px. */
+@media (min-width: 640px) {
+  .st-key-painel [data-testid="stHorizontalBlock"]:has(.st-key-coluna-chat) { flex-direction: row-reverse; }
+}
+/* Menos espaço no topo para o mapa caber na altura da tela. */
+/* O campo do chat fica dentro da coluna (não no rodapé), então o espaço extra que o Streamlit
+   reserva embaixo só fazia a página rolar além do conteúdo e levar o mapa junto. */
+[data-testid="stMainBlockContainer"] { padding-top: 3rem; padding-bottom: 2rem; }
+
+/* Desktop: o mapa acompanha a rolagem do chat (sticky dentro de stMain, que é quem rola).
+   As colunas deixam de esticar para a coluna do mapa ter a própria altura; se o mapa e o
+   painel do município passarem da altura da tela, a coluna rola por dentro. */
+@media (min-width: 640px) {
+  .st-key-painel [data-testid="stHorizontalBlock"]:has(.st-key-coluna-chat) { align-items: flex-start; }
+  .st-key-painel [data-testid="stColumn"]:has(.st-key-caixa-mapa) {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+}
+
+/* ---- Logo ------------------------------------------------------------- */
+/* Só aparece com a barra lateral recolhida; aberta, o logo fica dentro dela. No topo, centralizado. */
+[data-testid="stSidebar"][aria-expanded="true"] ~ div .st-key-logo-topo { display: none; }
+.st-key-logo-topo { margin-top: -2rem; align-items: center; }
+.st-key-logo-topo img, [data-testid="stSidebar"] [data-testid="stImage"] img { border-radius: 0; }
+
+/* ---- Sidebar ---------------------------------------------------------- */
+/* Flutuante: position fixed tira a sidebar do fluxo, então o conteúdo ocupa a largura toda
+   e a sidebar fica por cima do chat e do mapa. O z-index é o próprio do Streamlit (999991),
+   acima do mapa do Plotly (modebar com z-index 1001). Sem scrim. */
+[data-testid="stSidebar"] {
+  position: fixed !important;
+  top: var(--float-margin);
+  left: var(--float-margin);
+  bottom: var(--float-margin);
+  height: calc(100vh - 2 * var(--float-margin)) !important;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--glass-bg-sidebar);
+  -webkit-backdrop-filter: blur(var(--glass-blur-sidebar)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur-sidebar)) saturate(var(--glass-saturate));
+  border: var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+[data-testid="stSidebar"] > div,
+[data-testid="stSidebarContent"] { background: transparent; }
+/* Desktop: com a sidebar aberta, o conteúdo começa depois dela (largura padrão de 300px mais
+   as margens) em vez de ficar por baixo. No celular ela continua flutuando por cima. */
+@media (min-width: 769px) {
+  [data-testid="stSidebar"][aria-expanded="true"] ~ div [data-testid="stMainBlockContainer"] {
+    padding-left: calc(300px + 2 * var(--float-margin) + 1rem);
+  }
+}
+/* Recolhida: o Streamlit zera a largura e desloca a sidebar com transform (-largura). Como ela
+   agora começa 16px para dentro, o deslocamento soma as duas margens e os 300px padrão,
+   para nenhuma borda ou sombra ficar visível na tela. */
+[data-testid="stSidebar"][aria-expanded="false"] {
+  transform: translateX(calc(-100% - 2 * var(--float-margin) - 300px)) !important;
+  box-shadow: none;
+}
+
+/* Botões de recolher (dentro da sidebar) e de reabrir (no cabeçalho) em pílula de vidro. */
+[data-testid="stSidebarCollapseButton"] button,
+[data-testid="stExpandSidebarButton"] {
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+[data-testid="stSidebarCollapseButton"] button:hover,
+[data-testid="stExpandSidebarButton"]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--glass-highlight), var(--glass-shadow-hover);
+}
+
+@media (max-width: 768px) {
+  [data-testid="stSidebar"] {
+    top: var(--float-margin-mobile);
+    left: var(--float-margin-mobile);
+    bottom: var(--float-margin-mobile);
+    height: calc(100vh - 2 * var(--float-margin-mobile)) !important;
+    max-width: calc(100vw - 2 * var(--float-margin-mobile));
+    background: var(--glass-bg-sidebar-mobile);
+  }
+}
+
+/* ---- Botões ----------------------------------------------------------- */
+[data-testid^="stBaseButton-"] {
+  border-radius: var(--radius-pill);
+  transition: transform var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+[data-testid="stBaseButton-secondary"] {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+[data-testid="stBaseButton-primary"] {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #FFFFFF;
+  box-shadow: var(--glass-shadow);
+}
+[data-testid="stBaseButton-secondary"]:hover:not(:disabled),
+[data-testid="stBaseButton-primary"]:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--glass-highlight), var(--glass-shadow-hover);
+}
+[data-testid="stBaseButton-secondary"]:active:not(:disabled),
+[data-testid="stBaseButton-primary"]:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+[data-testid^="stBaseButton-"]:disabled,
+[data-testid="stChatInputSubmitButton"]:disabled {
+  opacity: 0.5;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transform: none;
+}
+
+/* ---- Chat ------------------------------------------------------------- */
+/* O primeiro filho de stChatInput é a caixa que contém o textarea e o botão de enviar. */
+[data-testid="stChatInput"] > div {
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+  padding-left: 8px;
+}
+[data-testid="stChatInputTextArea"] {
+  background: transparent;
+  border: 0;
+}
+[data-testid="stChatInputSubmitButton"] { border-radius: var(--radius-pill); }
+
+/* Balões e containers com borda: quase opacos, sem blur, para as respostas ficarem legíveis. */
+/* Containers com borda (st.container(border=True), ex.: painel do município): o Streamlit 1.65 não
+   lhes dá data-testid nem atributo próprio, então a única forma só com CSS é a classe gerada abaixo.
+   Ela muda se o Streamlit ou o tema mudarem; nesse caso o painel só volta ao visual padrão. */
+[data-testid="stChatMessage"],
+[data-testid="stVerticalBlock"].st-emotion-cache-1ggpdv9,
+[data-testid="stExpander"] details {
+  background: var(--surface-solid);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--surface-shadow);
+}
+[data-testid="stChatMessage"] { padding: 12px 16px; }
+
+/* ---- Mapa ------------------------------------------------------------- */
+/* Só o contêiner: o desenho do Plotly não muda. */
+.st-key-caixa-mapa [data-testid="stPlotlyChart"] {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--surface-shadow);
+}
+/* Botões de zoom do Plotly (modebar) numa pílula vertical de vidro no canto inferior direito. */
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-container { height: 100%; pointer-events: none; }
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar {
+  top: auto !important; bottom: 16px !important; right: 16px !important; background: transparent !important;
+  pointer-events: auto;
+}
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-group {
+  display: flex !important; flex-direction: column; gap: 2px; padding: 6px !important; margin: 0 !important;
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg-mapa) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border: var(--glass-border);
+  box-shadow: var(--glass-highlight), var(--glass-shadow);
+}
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-btn {
+  display: flex !important; align-items: center; justify-content: center;
+  width: 36px; height: 36px; padding: 0 !important; border-radius: 50%;
+  transition: background-color var(--transition);
+}
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-btn:hover { background: rgba(27, 36, 48, 0.08); }
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-btn svg,
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-btn::after { display: none !important; }
+.st-key-caixa-mapa .js-plotly-plot .plotly .modebar-btn::before {
+  content: "" !important; display: block !important; position: static !important; opacity: 1 !important;
+  width: 20px; height: 20px; padding: 0 !important; border: 0 !important; box-shadow: none !important;
+  background: #1B2430 !important; -webkit-mask: var(--icone) center / contain no-repeat; mask: var(--icone) center / contain no-repeat;
+}
+.st-key-caixa-mapa .modebar-btn[data-val="in"] { --icone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E"); }
+.st-key-caixa-mapa .modebar-btn[data-val="out"] { --icone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E"); }
+/* Quatro setas para dentro, uma em cada canto (volta a enquadrar o estado). */
+.st-key-caixa-mapa .modebar-btn[data-attr="reset"] { --icone: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4l5 5M9 5v4H5M20 4l-5 5M15 5v4h4M4 20l5-5M9 19v-4H5M20 20l-5-5M15 19v-4h4'/%3E%3C/svg%3E"); }
+
+/* ---- Acessibilidade --------------------------------------------------- */
+/* Anel de foco rosa (decisão de identidade visual; contraste registrado no relatório). */
+[data-testid^="stBaseButton-"]:focus-visible,
+[data-testid="stExpandSidebarButton"]:focus-visible,
+[data-testid="stSidebar"] a:focus-visible,
+[data-testid="stSidebar"] summary:focus-visible,
+.st-key-caixa-mapa .modebar-btn:focus-visible {
+  outline: 2px solid var(--rosa);
+  outline-offset: 2px;
+}
+[data-testid="stChatInput"] > div:focus-within {
+  outline: 2px solid var(--rosa);
+  outline-offset: 2px;
+}
+
+/* Texto secundário com contraste AA (4,5:1) sobre o vidro e o gradiente. */
+[data-testid="stCaptionContainer"] { opacity: 1; }
+[data-testid="stCaptionContainer"],
+[data-testid="stCaptionContainer"] p,
+[data-testid="stChatInputTextArea"]::placeholder { color: var(--texto-secundario); }
+/* O :gray[...] do markdown vem com a cor inline; só esse cinza é trocado. */
+.stMarkdownColoredText[style*="rgba(49, 51, 63, 0.6)"] { color: var(--texto-secundario) !important; }
+
+/* Navegador sem backdrop-filter, ou usuário que pediu menos transparência: superfícies sólidas. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-testid="stSidebar"],
+  [data-testid="stSidebarCollapseButton"] button,
+  [data-testid="stExpandSidebarButton"],
+  [data-testid="stBaseButton-secondary"],
+  [data-testid="stChatInput"] > div,
+  .st-key-caixa-mapa .js-plotly-plot .plotly .modebar-group { background: var(--glass-bg-solido) !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  [data-testid="stSidebar"],
+  [data-testid="stSidebarCollapseButton"] button,
+  [data-testid="stExpandSidebarButton"],
+  [data-testid="stBaseButton-secondary"],
+  [data-testid="stChatInput"] > div,
+  .st-key-caixa-mapa .js-plotly-plot .plotly .modebar-group {
+    background: var(--glass-bg-solido) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-testid^="stBaseButton-"],
+  [data-testid="stSidebarCollapseButton"] button,
+  [data-testid="stExpandSidebarButton"],
+  .st-key-caixa-mapa .modebar-btn {
+    transition: none !important;
+    transform: none !important;
+  }
+}

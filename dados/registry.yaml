@@ -1,0 +1,185 @@
+# Catálogo dos conjuntos de dados (Tabela 7 do Projeto da Arquitetura).
+# "campos" mapeia o campo canônico para o nome da coluna no CSV da SESP.
+# Incluir um novo conjunto = acrescentar uma entrada aqui (RNF06).
+conjuntos:
+  roubo-celular:
+    nome: Roubo de celular
+    familia: A
+    dataset_id: 356fa62d-7aa9-49a4-bc3c-62d46f078f92
+    resource_id: 1625ba2d-8020-4d65-b982-a28c65806e18
+    arquivo: roubo-celular.csv
+    campos: &campos_objeto       # conjuntos por objeto (celular, bicicleta, veículo)
+      ocorrencia: "Nº OCORRÊNCIA"
+      data_fato: "DATA DO FATO"
+      hora_fato: "HORA DO FATO"
+      municipio: "MUNICÍPIO"
+      bairro: "BAIRRO"
+      tipo_local: "TIPO DE LOCAL"
+      tipo_objeto: "TIPO OBJETO"
+      marca: "MARCA"
+      modelo: "MODELO"
+
+  homicidios-e-feminicidios:
+    nome: Homicídios e feminicídios
+    familia: B
+    dataset_id: f605a946-7b4a-444a-a8e7-e156bc9e791a
+    resource_id: 2580653b-0a6b-4fba-b813-c849830d8993
+    arquivo: homicidios-e-feminicidios.csv
+    campos:
+      ocorrencia: "Nº OCORRENCIA"
+      data_fato: "DATA"
+      hora_fato: "HORA"
+      municipio: "MUNICÍPIO"
+      bairro: "BAIRRO"
+      tipo_local: "TIPO LOCAL"
+      idade: "IDADE"
+      sexo: "GENERO"
+      cor_raca: "COR"
+
+  violencia-domestica:
+    nome: Violência doméstica
+    familia: B
+    dataset_id: 96cedd83-994e-4188-8aa2-1f75fb8ce18d
+    resource_id: 6f81a412-5022-49a3-b2a2-111ed19ab5e4
+    arquivo: violencia-domestica.csv
+    campos:
+      ocorrencia: "Nº OCORRÊNCIA"
+      data_fato: "DATA DO FATO"
+      hora_fato: "HORA DO FATO"
+      municipio: "MUNICÍPIO"
+      bairro: "BAIRRO"
+      tipo_local: "TIPO DE LOCAL"
+      idade: "IDADE"
+      sexo: "SEXO"
+      cor_raca: "CÚTIS"
+
+  roubo-de-bicicleta:
+    nome: Roubo de bicicleta
+    familia: A
+    dataset_id: 26a903ce-3986-4aba-bc34-91ef7cfbe49f
+    resource_id: fdb3d4d2-5102-4dc4-b60a-dcd5fddd6752
+    arquivo: roubo-de-bicicleta.csv
+    campos: *campos_objeto
+
+  roubo-de-veiculo:
+    nome: Roubo de veículo
+    familia: A
+    dataset_id: d3f44a72-d901-4f80-820e-56f47aaa474e
+    resource_id: 1e1e7861-c433-4e86-9e18-64250776b22b
+    arquivo: roubo-de-veiculo.csv
+    campos: *campos_objeto
+
+  roubo-a-pessoa:
+    nome: Roubo a pessoa
+    familia: A
+    dataset_id: 9815cc60-37c1-49c7-8be0-d72f54a456e6
+    resource_id: c16c37b7-6b3e-4bd0-8462-eb39a4a0f24a
+    arquivo: roubo-a-pessoa.csv
+    campos: &campos_local         # conjuntos por local (pessoa, comércio, residência, transporte)
+      ocorrencia: "Nº OCORRÊNCIA"
+      data_fato: "DATA DO FATO"
+      hora_fato: "HORA DO FATO"
+      municipio: "MUNICÍPIO"
+      bairro: "BAIRRO"
+      tipo_local: "TIPO DE LOCAL"
+
+  roubo-em-comercio:
+    nome: Roubo em comércio
+    familia: A
+    dataset_id: acbfbe21-54f6-45ff-a0a6-24f18ab5efff
+    resource_id: 60158904-cccf-47ce-ae84-ea0c8813908a
+    arquivo: roubo-em-comercio.csv
+    campos: *campos_local
+
+  roubo-em-residencia:
+    nome: Roubo em residência
+    familia: A
+    dataset_id: 8bd963a0-af32-4952-a300-edc49c76a9b8
+    resource_id: 3206f9ee-90cc-463c-a942-8182a5d82575
+    arquivo: roubo-em-residencia.csv
+    campos: *campos_local
+
+  roubo-em-transporte-coletivo:
+    nome: Roubo em transporte coletivo
+    familia: A
+    dataset_id: b9cd82be-28e9-4a6e-b4e4-3cc3b53514f9
+    resource_id: 5981490a-4822-4a70-99cd-29e751cf766e
+    arquivo: roubo-em-transporte-coletivo.csv
+    campos: *campos_local
+
+  furto-celular:
+    nome: Furto de celular
+    familia: A
+    dataset_id: 7a537699-e6ea-4356-9e04-7b7aff75823b
+    resource_id: 6727b51d-9a68-4a65-9973-4051e0c82d0e
+    arquivo: furto-celular.csv
+    campos: *campos_objeto
+
+  furto-de-bicicleta:
+    nome: Furto de bicicleta
+    familia: A
+    dataset_id: e0b8d3b2-4aec-4e2b-8d79-eaaf5c6e7eeb
+    resource_id: 51853e38-0317-41ef-b8b7-2c86afc35b2d
+    arquivo: furto-de-bicicleta.csv
+    campos: *campos_objeto
+
+  furto-de-veiculo:
+    nome: Furto de veículo
+    familia: A
+    dataset_id: 90a09849-bcd9-4799-b819-9c9c606170aa
+    resource_id: 4680570b-63f9-4fb3-92a6-3097d4fd3a1a
+    arquivo: furto-de-veiculo.csv
+    campos: *campos_objeto
+
+  furto-a-pessoa:
+    nome: Furto a pessoa
+    familia: A
+    dataset_id: 3db3a4ae-9378-429c-8e7d-3a748984683a
+    resource_id: d2e8486f-f31b-4ac3-aaab-1fd14dc49fd1
+    arquivo: furto-a-pessoa.csv
+    campos: *campos_local
+
+  furto-em-comercio:
+    nome: Furto em comércio
+    familia: A
+    dataset_id: 5385de3b-8751-44d9-a0ff-358b1991498d
+    resource_id: 2c0d3005-140e-40e7-86b0-86db7c4a62fd
+    arquivo: furto-em-comercio.csv
+    campos: *campos_local
+
+  furto-em-residencia:
+    nome: Furto em residência
+    familia: A
+    dataset_id: e6a94e40-56a8-4144-8958-c7bf80280e04
+    resource_id: cc8f9489-45e3-4e78-9d77-ffe211449eef
+    arquivo: furto-em-residencia.csv
+    campos: *campos_local
+
+  furto-em-transporte-coletivo:
+    nome: Furto em transporte coletivo
+    familia: A
+    dataset_id: cb53952c-220f-402e-a817-36ec3bec0d62
+    resource_id: ded9feb4-be0e-48b8-bd94-e7a4946c5575
+    arquivo: furto-em-transporte-coletivo.csv
+    campos: *campos_local
+
+# Indicadores do mapa: ocorrências distintas por município e ano, em taxa por
+# 100 mil habitantes, calculadas a partir das tabelas dos conjuntos acima (mesmo id).
+# "cor" é o tom mais escuro da escala sequencial do indicador.
+mapa:
+  homicidios-e-feminicidios: {nome: Homicídios e feminicídios, grupo: Crimes contra a vida, cor: "#A50F15"}
+  violencia-domestica: {nome: Violência doméstica, grupo: Violência doméstica, cor: "#7A0177"}
+  roubo-a-pessoa: {nome: Roubo a pessoa, grupo: Roubos, cor: "#B35806"}
+  roubo-celular: {nome: Roubo de celular, grupo: Roubos, cor: "#D94801"}
+  roubo-de-bicicleta: {nome: Roubo de bicicleta, grupo: Roubos, cor: "#8C6D00"}
+  roubo-de-veiculo: {nome: Roubo de veículo, grupo: Roubos, cor: "#5E3C99"}
+  roubo-em-comercio: {nome: Roubo em comércio, grupo: Roubos, cor: "#7F2704"}
+  roubo-em-residencia: {nome: Roubo em residência, grupo: Roubos, cor: "#CE1256"}
+  roubo-em-transporte-coletivo: {nome: Roubo em transporte coletivo, grupo: Roubos, cor: "#01665E"}
+  furto-celular: {nome: Furto de celular, grupo: Furtos, cor: "#006D2C"}
+  furto-de-bicicleta: {nome: Furto de bicicleta, grupo: Furtos, cor: "#4D7A00"}
+  furto-de-veiculo: {nome: Furto de veículo, grupo: Furtos, cor: "#08306B"}
+  furto-em-residencia: {nome: Furto em residência, grupo: Furtos, cor: "#3B3B3B"}
+  furto-a-pessoa: {nome: Furto a pessoa, grupo: Furtos, cor: "#003C30"}
+  furto-em-comercio: {nome: Furto em comércio, grupo: Furtos, cor: "#67001F"}
+  furto-em-transporte-coletivo: {nome: Furto em transporte coletivo, grupo: Furtos, cor: "#2D004B"}

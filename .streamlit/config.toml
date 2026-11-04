@@ -1,0 +1,12 @@
+[client]
+showErrorDetails = "none"
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#0096E1"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F8FC"
+textColor = "#1B2430"
