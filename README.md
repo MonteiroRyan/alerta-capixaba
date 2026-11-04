@@ -35,13 +35,6 @@ tamanho e a frequência das perguntas.
 
 **Tecnologias:** Python 3.12, Streamlit, Google Gemini API, pandas, DuckDB e Plotly.
 
-## Testes
-
-```bash
-.venv\Scripts\python -m pip install -r requirements-dev.txt
-.venv\Scripts\python -m pytest testes
-```
-
 ## Fontes de dados
 
 - Ocorrências: SESP-ES, portal de dados abertos [dados.es.gov.br](https://dados.es.gov.br).
