@@ -94,3 +94,17 @@ def test_bairros_do_municipio_filtra_pela_malha():
     from dominio.mapa import bairros_do_municipio
     malha = {"features": [{"properties": {"cd_mun": "3205309"}}, {"properties": {"cd_mun": "3205200"}}]}
     assert len(bairros_do_municipio(malha, "3205309")["features"]) == 1
+
+
+def test_simplificacao_reduz_anel_fechado_e_mantem_fechamento():
+    from dados.ibge.gerar_malha_bairros import simplificar
+    anel = [[0, 0], [0.5, 0.000001], [1, 0], [1, 0.5], [1, 1], [0.5, 1.000001], [0, 1], [0, 0]]
+    simples = simplificar(anel, 0.0001)
+    assert simples == [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
+
+
+def test_rotulos_da_legenda_para_taxas_e_contagens():
+    from ui.mapa import cores_das_classes, rotulos_das_classes
+    assert rotulos_das_classes([6.9, 13.7], 1) == ["até 6,9", "6,9 a 13,7"]
+    assert rotulos_das_classes([0.0, 1.0, 8.0], 0) == ["Sem registro", "1", "2 a 8"]
+    assert len(set(cores_das_classes(3))) == 3
