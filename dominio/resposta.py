@@ -55,17 +55,31 @@ def redigir_template(r: ResultadoConsulta) -> str:
     return texto
 
 
-def redigir(cliente, r: ResultadoConsulta) -> str:
+def redigir_em_fluxo(cliente, dados: str, ao_trecho) -> str:
+    texto = ""
+    for trecho in cliente.gerar_texto_em_fluxo(INSTRUCAO, dados):
+        texto += trecho
+        ao_trecho(texto)
+    return texto
+
+
+def redigir(cliente, r: ResultadoConsulta, ao_trecho=None) -> str:
     if cliente is None:
         return redigir_template(r)
     r = legivel(r)
-    dados = {
+    dados = json.dumps({
         "conjunto": r.conjunto, "total_ocorrencias": r.total, "periodo": r.periodo,
         "filtros": r.filtros, "agrupado_por": ROTULOS[r.agrupado_por],
         "grupos": dict(r.grupos), "suprimidos": r.suprimidos,
-    }
+    }, ensure_ascii=False)
+    if ao_trecho and hasattr(cliente, "gerar_texto_em_fluxo"):
+        try:
+            if texto := redigir_em_fluxo(cliente, dados, ao_trecho).strip():
+                return texto
+        except Exception:
+            log.exception("Falha no fluxo do Gemini; repetindo sem fluxo")
     try:
-        return cliente.gerar_texto(INSTRUCAO, json.dumps(dados, ensure_ascii=False))
+        return cliente.gerar_texto(INSTRUCAO, dados)
     except Exception:
         log.exception("Falha ao redigir com o Gemini; usando template")
         return redigir_template(r)

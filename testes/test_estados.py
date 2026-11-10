@@ -60,3 +60,33 @@ def test_tipo_vago_filtra_pela_palavra_usada():
     assert [c.id for c in candidatos("quantos assaltos em Vitória?", conjuntos)] == ["roubo-celular", "roubo-a-pessoa"]
     assert [c.id for c in candidatos("e os furtos?", conjuntos)] == ["furto-celular"]
     assert len(candidatos("crimes em Serra", conjuntos)) == 4
+
+
+class ClienteComFluxo(ClienteFalso):
+    def __init__(self, intencao, trechos):
+        super().__init__(intencao)
+        self.trechos = trechos
+
+    def gerar_texto_em_fluxo(self, instrucao, texto):
+        for trecho in self.trechos:
+            if trecho is None:
+                raise RuntimeError("fluxo interrompido")
+            yield trecho
+
+
+INTENCAO_HOMICIDIO = {"no_escopo": True, "tipo_crime": "homicidios-e-feminicidios", "municipio": "vitoria"}
+
+
+def test_resposta_em_fluxo_entrega_o_texto_acumulado(con):
+    recebidos = []
+    cliente = ClienteComFluxo(INTENCAO_HOMICIDIO, ["**7** ", "ocorrências."])
+    r = Orquestrador(con, CONJUNTOS, cliente).responder("homicídios em Vitória", recebidos.append)
+    assert recebidos == ["**7** ", "**7** ocorrências."]
+    assert r.texto == "**7** ocorrências."
+
+
+def test_fluxo_interrompido_recorre_a_resposta_sem_fluxo(con):
+    cliente = ClienteComFluxo(INTENCAO_HOMICIDIO, ["**7** ", None])
+    r = Orquestrador(con, CONJUNTOS, cliente).responder("homicídios em Vitória", lambda _: None)
+    assert r.tipo == "resposta"
+    assert r.texto == cliente.gerar_texto("", "")

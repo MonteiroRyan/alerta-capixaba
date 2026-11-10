@@ -50,11 +50,14 @@ def simplificar(anel: list, tol: float) -> list:
         a, b = pilha.pop()
         (x1, y1), (x2, y2) = anel[a], anel[b]
         dx, dy = x2 - x1, y2 - y1
-        norma = (dx * dx + dy * dy) ** 0.5 or 1e-12
+        norma = (dx * dx + dy * dy) ** 0.5
         maior, idx = 0.0, None
         for i in range(a + 1, b):
             x, y = anel[i]
-            d = abs(dy * x - dx * y + x2 * y1 - y2 * x1) / norma
+            if norma:
+                d = abs(dy * x - dx * y + x2 * y1 - y2 * x1) / norma
+            else:
+                d = ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5
             if d > maior:
                 maior, idx = d, i
         if idx is not None and maior > tol:
@@ -75,7 +78,8 @@ def main(gpkg: Path) -> None:
             "properties": {"cd_bairro": cd_bairro, "cd_mun": cd_mun, "nome": nome},
             "geometry": {"type": "MultiPolygon", "coordinates": poligonos},
         })
-    DESTINO.write_text(json.dumps({"type": "FeatureCollection", "features": feicoes}, ensure_ascii=False),
+    DESTINO.write_text(json.dumps({"type": "FeatureCollection", "features": feicoes}, ensure_ascii=False,
+                                  separators=(",", ":")),
                        encoding="utf-8")
     print(f"{len(feicoes)} bairros -> {DESTINO.name} ({DESTINO.stat().st_size // 1024} KB)")
 

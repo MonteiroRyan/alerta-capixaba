@@ -40,7 +40,7 @@ class Orquestrador:
         self.cliente = cliente
         self.locais = {cid: locais(con, cid) for cid in conjuntos}
 
-    def responder(self, pergunta: str) -> Resposta:
+    def responder(self, pergunta: str, ao_trecho=None) -> Resposta:
         pergunta = pergunta.strip()
         if not pergunta:
             return Resposta("Escreva uma pergunta.", "aviso")
@@ -62,7 +62,7 @@ class Orquestrador:
             conjunto, intencao = rotear(intencao, self.conjuntos, self.locais)
             resultado = aplicar_guarda(consultar(self.con.cursor(), conjunto, intencao), config.K_MINIMO)
             anos = self.locais[conjunto.id]["anos"]
-            return Resposta(redigir(self.cliente, resultado), "resposta", resultado, intencao, conjunto,
+            return Resposta(redigir(self.cliente, resultado, ao_trecho), "resposta", resultado, intencao, conjunto,
                             sugestoes.continuacoes(conjunto, intencao, self.conjuntos, anos))
         except RecorteInvalido as e:
             anos = self.locais.get(intencao.tipo_crime or "", {}).get("anos")

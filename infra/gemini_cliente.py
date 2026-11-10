@@ -1,3 +1,5 @@
+from collections.abc import Iterator
+
 from google import genai
 from google.genai import types
 
@@ -28,3 +30,13 @@ class ClienteGemini:
             config=types.GenerateContentConfig(system_instruction=instrucao, temperature=0.2),
         )
         return resposta.text
+
+    def gerar_texto_em_fluxo(self, instrucao: str, texto: str) -> Iterator[str]:
+        fluxo = self._cliente.models.generate_content_stream(
+            model=self._modelo,
+            contents=texto,
+            config=types.GenerateContentConfig(system_instruction=instrucao, temperature=0.2),
+        )
+        for parte in fluxo:
+            if parte.text:
+                yield parte.text
