@@ -7,7 +7,7 @@ import duckdb
 from dados.registry import ConjuntoDados
 from dados.repositorio import locais
 from dominio import sugestoes
-from dominio.consulta import consultar
+from dominio.consulta import SemPopulacao, consultar
 from dominio.interpretador import interpretar
 from dominio.modelos import Intencao, ResultadoConsulta
 from dominio.privacidade import aplicar_guarda
@@ -64,6 +64,11 @@ class Orquestrador:
             anos = self.locais[conjunto.id]["anos"]
             return Resposta(redigir(self.cliente, resultado, ao_trecho), "resposta", resultado, intencao, conjunto,
                             sugestoes.continuacoes(conjunto, intencao, self.conjuntos, anos))
+        except SemPopulacao:
+            e = RecorteInvalido("Não encontrei a população desse recorte para calcular a taxa por 100 mil "
+                                "habitantes. Posso mostrar o número de ocorrências.", "taxa")
+            opcoes = sugestoes.para_recorte("taxa", intencao, pergunta, self.conjuntos, None)
+            return Resposta(str(e), "esclarecimento", intencao=intencao, opcoes=opcoes)
         except RecorteInvalido as e:
             anos = self.locais.get(intencao.tipo_crime or "", {}).get("anos")
             opcoes = sugestoes.para_recorte(e.motivo, intencao, pergunta, self.conjuntos, anos)

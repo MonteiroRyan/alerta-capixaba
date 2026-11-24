@@ -59,11 +59,18 @@ def boas_vindas() -> None:
 def como_entendi(r: Resposta) -> None:
     i = r.intencao
     filtros = [("Indicador", r.conjunto.nome)]
+    if i.medida == "taxa":
+        filtros.append(("Medida", "taxa por 100 mil habitantes"))
     if i.municipio:
         filtros.append(("Município", formatar_nome(i.municipio)))
+    if i.municipios:
+        filtros.append(("Municípios", ", ".join(formatar_nome(m) for m in i.municipios)))
     if i.bairro:
         filtros.append(("Bairro", formatar_nome(i.bairro)))
-    filtros.append(("Período", str(i.ano) if i.ano else "todo o período"))
+    periodo = ", ".join(map(str, i.anos)) if i.anos else str(i.ano) if i.ano else "todo o período"
+    filtros.append(("Período", periodo))
+    if i.agrupar_por in ("municipio", "ano"):
+        filtros.append(("Comparação", "por município" if i.agrupar_por == "municipio" else "por ano"))
     if i.faixa_horaria:
         filtros.append(("Horário", FAIXAS[i.faixa_horaria]))
     if i.perfil:
@@ -74,11 +81,12 @@ def como_entendi(r: Resposta) -> None:
                    "Algo errado? Reformule a pergunta com mais detalhes.")
 
 
-def grafico(df: pd.DataFrame, rotulo: str) -> alt.Chart:
+def grafico(df: pd.DataFrame, rotulo: str, medida: str = "Ocorrências", ordem=None) -> alt.Chart:
+    formato = "d" if medida == "Ocorrências" else ",.1f"
     return alt.Chart(df).mark_bar(color=config.COR_PRIMARIA, cornerRadiusEnd=4).encode(
-        x=alt.X("Ocorrências:Q", title="Ocorrências", axis=alt.Axis(format="d")),
-        y=alt.Y(f"{rotulo}:N", sort="-x", title=None, axis=alt.Axis(labelLimit=220)),
-        tooltip=[rotulo, "Ocorrências"],
+        x=alt.X(f"{medida}:Q", title=medida, axis=alt.Axis(format=formato)),
+        y=alt.Y(f"{rotulo}:N", sort=ordem or "-x", title=None, axis=alt.Axis(labelLimit=220)),
+        tooltip=list(df.columns),
     ).properties(height=28 * len(df) + 40, background="transparent")
 
 
@@ -89,7 +97,12 @@ def resposta_com_dados(r: Resposta, indice: int, pergunta: str) -> None:
     if resultado.grupos:
         rotulo = ROTULOS[resultado.agrupado_por].capitalize()
         df = pd.DataFrame(resultado.grupos, columns=[rotulo, "Ocorrências"])
-        st.altair_chart(grafico(df, rotulo))
+        medida = "Ocorrências"
+        if resultado.taxas:
+            medida = "Taxa por 100 mil habitantes"
+            df[medida] = df[rotulo].map(resultado.taxas).round(1)
+        ordem = list(df[rotulo]) if resultado.agrupado_por in ("ano", "municipio") else None
+        st.altair_chart(grafico(df, rotulo, medida, ordem))
 
     inicio, fim = resultado.periodo
     st.caption(f"Fonte: SESP-ES, dados abertos · {r.conjunto.nome} · de {inicio} a {fim} · "
