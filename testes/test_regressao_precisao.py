@@ -5,14 +5,13 @@ que o modelo deveria extrair da pergunta. O cliente simulado substitui o Gemini,
 que o teste verifica tudo o que vem depois da interpretação: roteamento, consulta, taxa,
 privacidade e o texto final. As perguntas 9 a 13 e 15 falhavam na versão avaliada.
 """
-import re
-
 import pytest
 
 from dados.ingestao import preparar_base, preparar_populacao
 from dados.registry import carregar_registry
 from dados.repositorio import abrir_conexao
 from dominio.orquestrador import Orquestrador
+from dominio.resposta import NUMERO
 from infra import config
 from test_seguranca import ClienteFalso
 
@@ -45,7 +44,7 @@ def perguntar(base, intencao, pergunta="pergunta"):
 
 
 def numeros(texto):
-    return re.findall(r"\d[\d.]*(?:,\d+)?", texto)
+    return NUMERO.findall(texto)
 
 
 CONTAGENS = [
