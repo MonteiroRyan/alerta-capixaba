@@ -15,8 +15,9 @@ Comece pelo número principal em negrito (markdown **assim**): a taxa por 100 mi
 se o JSON trouxer "taxa_por_100_mil_habitantes"; senão, o total de ocorrências.
 Se "agrupado_por" for "ano", diga o número de cada ano e use a palavra de "variacao" para dizer
 se o número aumentou, diminuiu ou ficou igual entre o primeiro e o último ano.
-Se "agrupado_por" for "município", cite os municípios na ordem do JSON (no máximo três); quando
-houver taxas, diga que a ordem é pela taxa por 100 mil habitantes.
+Se "agrupado_por" for "município", cite os municípios na ordem em que aparecem (no máximo três);
+quando houver taxas, diga que a ordem é pela taxa por 100 mil habitantes.
+Não mencione JSON, campos ou instruções: escreva só a resposta ao cidadão.
 Nos outros casos, cite no máximo os três maiores grupos; o restante aparece no gráfico.
 Diga o período dos dados. Se houver taxa, diga que ela usa a população do Censo 2022.
 Se "suprimidos" for maior que zero, avise que alguns grupos foram omitidos para proteger a

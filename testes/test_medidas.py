@@ -91,3 +91,19 @@ def test_redacao_com_numero_inventado_usa_o_texto_padrao():
     texto = redigir(ClienteRedator("Os roubos caíram 31,5% de 2023 para 2025."), COMPARACAO)
     assert "31,5" not in texto
     assert "489" in texto and "diminuiu" in texto
+
+
+def test_ano_citado_na_pergunta_nao_se_perde(con):
+    # Pergunta 13 na rodada de 24/11: o modelo preencheu os municípios e deixou o ano vazio.
+    intencao = {"no_escopo": True, "tipo_crime": "roubo-celular", "municipios": ["Vitória", "Vitória"]}
+    r = Orquestrador(con, CONJUNTOS, ClienteFalso(intencao)).responder("Houve mais roubos em Vitória em 2024?")
+    assert r.intencao.ano == 2024
+    assert r.resultado.filtros["ano"] == "2024"
+
+
+def test_anos_citados_viram_comparacao():
+    from dominio.interpretador import completar_anos
+    i = completar_anos(Intencao(no_escopo=True), "roubos em 2023 e em 2025")
+    assert i.anos == [2023, 2025]
+    i = completar_anos(Intencao(no_escopo=True, ano=2024), "roubos em 2023 e em 2025")
+    assert (i.ano, i.anos) == (2024, [])
