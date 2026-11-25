@@ -29,7 +29,7 @@ def test_fora_do_escopo_sugere_perguntas(con):
 def test_tipo_vago_oferece_os_conjuntos(con):
     r = responder(con, {"no_escopo": True}, "roubos em 2024")
     assert r.tipo == "esclarecimento"
-    assert r.opcoes == ["Roubo de celular no ES"]
+    assert r.opcoes == ["Roubo de celular no ES em 2024"]
 
 
 def test_perfil_indisponivel_oferece_recorte_valido(con):

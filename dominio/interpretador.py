@@ -1,3 +1,5 @@
+import re
+
 from dados.registry import ConjuntoDados
 from dominio.modelos import MAX_COMPARADOS, Intencao
 
@@ -14,6 +16,7 @@ em uma estrutura JSON. Não responda à pergunta; apenas extraia os campos.
   ("no ES", "no Espírito Santo"), municipio é null.
 - municipios: lista com os municípios quando a pergunta compara dois ou mais
   ("Vitória ou Vila Velha"); nesse caso municipio é null. Senão, lista vazia.
+  Comparar municípios não muda o ano: se a pergunta cita um ano, preencha ano normalmente.
 - ano: o ano citado na pergunta (ex.: 2024), ou null.
 - anos: lista com todos os anos do intervalo quando a pergunta compara anos ou pede a evolução
   ("de 2023 para 2025" = [2023, 2024, 2025]; "2023 e 2025" = [2023, 2025]); nesse caso ano é null.
@@ -56,4 +59,16 @@ def schema_intencao(conjuntos: dict[str, ConjuntoDados]) -> dict:
 def interpretar(cliente, pergunta: str, conjuntos: dict[str, ConjuntoDados]) -> Intencao:
     tipos = "\n".join(f"  {c.id}: {c.nome}" for c in conjuntos.values())
     bruto = cliente.gerar_json(INSTRUCAO.format(tipos=tipos), pergunta, schema_intencao(conjuntos))
-    return Intencao.model_validate_json(bruto)
+    return completar_anos(Intencao.model_validate_json(bruto), pergunta)
+
+
+def completar_anos(intencao: Intencao, pergunta: str) -> Intencao:
+    """Rede de segurança: um ano escrito na pergunta não pode se perder na interpretação."""
+    if intencao.ano or intencao.anos:
+        return intencao
+    citados = sorted({int(a) for a in re.findall(r"\b(19\d{2}|20\d{2})\b", pergunta)})
+    if len(citados) == 1:
+        return intencao.model_copy(update={"ano": citados[0]})
+    if len(citados) > 1:
+        return intencao.model_copy(update={"anos": citados[:MAX_COMPARADOS]})
+    return intencao
